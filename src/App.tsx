@@ -22,18 +22,21 @@ function App() {
   const [loadingrepos, setLoadingRepos] = useState(false);
   const [loadinguser, setLoadingUser] = useState(false);
 
-  const handleSearch = async () => {
+  const handleSearch = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+
     setSearchedUsername(username);
     setLoadingUser(true);
+
     try {
       const userResponse = await fetch(
         `https://api.github.com/search/users?q=${username}`
       );
       const user = await userResponse.json();
       setUserData(user.items.slice(0, 5));
-      setLoadingUser(false);
     } catch (error) {
       setUserData([]);
+    } finally {
       setLoadingUser(false);
     }
   };
@@ -48,9 +51,10 @@ function App() {
       );
       const repo = await repoResponse.json();
       setRepos(expand === username ? [] : repo);
-      setLoadingRepos(false);
     } catch (error) {
       setRepos([]);
+    } finally {
+      setLoadingRepos(false);
     }
   };
   return (
@@ -59,28 +63,32 @@ function App() {
         <div className="bg-white shadow-lg p-3 rounded-lg w-96">
           <div className="text-center my-10 ">
             <p className="text-sm font-bold">
-              --GitHub repositories explorer--  </p>
-            <p className="text-[8px] text-gray-500">&copy; lalu ahmad gede pariandi atsani</p>
-          
+              --GitHub repositories explorer--{" "}
+            </p>
+            <p className="text-[8px] text-gray-500">
+              &copy; lalu ahmad gede pariandi atsani
+            </p>
           </div>
-
-          <div>
-            <input
-              type="text"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              className="block w-full border border-gray-300 rounded-lg shadow-md px-5 py-2 "
-              placeholder="Enter Username"
-            />
-          </div>
-          <div>
-            <button
-              onClick={handleSearch}
-              className="w-full bg-blue-600 text-white mt-2 rounded-lg py-2 font-medium"
-            >
-              Search..
-            </button>
-          </div>
+          <form onSubmit={handleSearch} className="input">
+            <div>
+              <input
+                type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                autoFocus
+                className="block w-full border border-gray-300 rounded-lg shadow-md px-5 py-2"
+                placeholder="Enter Username"
+              />
+            </div>
+            <div>
+              <button
+                type="submit"
+                className="w-full bg-blue-600 text-white mt-2 rounded-lg py-2 font-medium"
+              >
+                Search..
+              </button>
+            </div>
+          </form>
           <p className="text-xs text-gray-400 mx-2 my-2">
             {searchedusername && userData.length > 0 && (
               <p className="text-xs text-gray-400">
