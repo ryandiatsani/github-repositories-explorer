@@ -20,17 +20,21 @@ function App() {
   const [repos, setRepos] = useState<GitRepo[]>([]);
   const [expand, setExpand] = useState("");
   const [loadingrepos, setLoadingRepos] = useState(false);
+  const [loadinguser, setLoadingUser] = useState(false);
 
   const handleSearch = async () => {
     setSearchedUsername(username);
+    setLoadingUser(true);
     try {
       const userResponse = await fetch(
         `https://api.github.com/search/users?q=${username}`
       );
       const user = await userResponse.json();
       setUserData(user.items.slice(0, 5));
+      setLoadingUser(false);
     } catch (error) {
       setUserData([]);
+      setLoadingUser(false);
     }
   };
 
@@ -53,9 +57,13 @@ function App() {
     <div style={{ backgroundImage: `url(${bg})` }}>
       <div className="h-screen w-full flex items-center justify-center">
         <div className="bg-white shadow-lg p-3 rounded-lg w-96">
-          <p className="text-sm my-10 font-bold text-center">
-            --GitHub repositories explorer--
-          </p>
+          <div className="text-center my-10 ">
+            <p className="text-sm font-bold">
+              --GitHub repositories explorer--  </p>
+            <p className="text-[8px] text-gray-500">&copy; lalu ahmad gede pariandi atsani</p>
+          
+          </div>
+
           <div>
             <input
               type="text"
@@ -80,60 +88,67 @@ function App() {
               </p>
             )}
           </p>
-
-          {userData.length > 0 && (
-            <div className="max-h-96 w-full overflow-y-auto border rounded-lg p-3">
-              <ul>
-                {userData.map((user) => (
-                  <li key={user.id}>
-                    <p
-                      onClick={() => showRepos(user.login)}
-                      className="bg-gray-100 my-2 p-2 rounded-lg cursor-pointer flex justify-between"
-                    >
-                      <span>{user.login}</span>
-                      {expand === user.login ? <ChevronUp /> : <ChevronDown />}
-                    </p>
-
-                    {expand === user.login && (
-                      <div>
-                        {loadingrepos ? (
-                          <p className="text-center">Loading....</p>
-                        ) : repos.length > 0 ? (
-                          <div>
-                            {repos.map((repo) => (
-                              <li
-                                className="bg-gray-300 my-2 ml-5 p-2"
-                                key={repo.id}
-                              >
-                                <div className="flex ">
-                                  <div className="w-4/5 break-words">
-                                    <p className="font-bold text-sm">
-                                      {repo.name}
-                                    </p>
-                                    <p className="text-[10px] text-gray-500">
-                                      {repo.description === null
-                                        ? "no desc"
-                                        : repo.description}
-                                    </p>
-                                  </div>
-
-                                  <div className="w-1/5 flex items-center justify-end gap-1">
-                                    <p>{repo.stargazers_count}</p>
-                                    <Star />
-                                  </div>
-                                </div>
-                              </li>
-                            ))}
-                          </div>
+          {loadinguser ? (
+            <p className="text-center">Loading....</p>
+          ) : (
+            userData.length > 0 && (
+              <div className="max-h-96 w-full overflow-y-auto border rounded-lg p-3">
+                <ul>
+                  {userData.map((user) => (
+                    <li key={user.id}>
+                      <p
+                        onClick={() => showRepos(user.login)}
+                        className="bg-gray-100 my-2 p-2 rounded-lg cursor-pointer flex justify-between"
+                      >
+                        <span>{user.login}</span>
+                        {expand === user.login ? (
+                          <ChevronUp />
                         ) : (
-                          <p className="text-center">-- repos not found --</p>
+                          <ChevronDown />
                         )}
-                      </div>
-                    )}
-                  </li>
-                ))}
-              </ul>
-            </div>
+                      </p>
+
+                      {expand === user.login && (
+                        <div>
+                          {loadingrepos ? (
+                            <p className="text-center">Loading....</p>
+                          ) : repos.length > 0 ? (
+                            <div>
+                              {repos.map((repo) => (
+                                <li
+                                  className="bg-gray-300 my-2 ml-5 p-2"
+                                  key={repo.id}
+                                >
+                                  <div className="flex ">
+                                    <div className="w-4/5 break-words">
+                                      <p className="font-bold text-sm">
+                                        {repo.name}
+                                      </p>
+                                      <p className="text-[10px] text-gray-500">
+                                        {repo.description === null
+                                          ? "no desc"
+                                          : repo.description}
+                                      </p>
+                                    </div>
+
+                                    <div className="w-1/5 flex items-center justify-end gap-1">
+                                      <p>{repo.stargazers_count}</p>
+                                      <Star />
+                                    </div>
+                                  </div>
+                                </li>
+                              ))}
+                            </div>
+                          ) : (
+                            <p className="text-center">-- repos not found --</p>
+                          )}
+                        </div>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )
           )}
         </div>
       </div>
